@@ -14,13 +14,15 @@ def get_tags():
     """Find all tags (TAG_HTML) in RSS_FEED.
     Replace dash with whitespace.
     Hint: use TAG_HTML.findall"""
-    pass
+    with open(RSS_FEED) as rss:
+        tags = TAG_HTML.findall(rss.read())
+    return [tag.replace('-', ' ').lower() for tag in tags]
 
 
 def get_top_tags(tags):
     """Get the TOP_NUMBER of most common tags
     Hint: use most_common method of Counter (already imported)"""
-    pass
+    return Counter(tags).most_common(TOP_NUMBER)
 
 
 def get_similarities(tags):
@@ -28,13 +30,26 @@ def get_similarities(tags):
     Hint 1: compare each tag, use for in for, or product from itertools (already imported)
     Hint 2: use SequenceMatcher (imported) to calculate the similarity ratio
     Bonus: for performance gain compare the first char of each tag in pair and continue if not the same"""
-    pass
+    print(tags)
+    similar_tags = set()
+    for index, tag in enumerate(tags):
+        for other_tag in tags[index:]:
+            this_ratio = SequenceMatcher(a=tag, b=other_tag).ratio()
+            if SIMILAR < this_ratio < 1 \
+                    and tag not in dict(similar_tags) \
+                    and other_tag not in dict(similar_tags):
+                if len(tag) > len(other_tag):
+                    similar_tags.add((other_tag, tag))
+                else:
+                    similar_tags.add((tag, other_tag))
+    return similar_tags
 
 
 if __name__ == "__main__":
     tags = get_tags()
     top_tags = get_top_tags(tags)
-    print('* Top {} tags:'.format(TOP_NUMBER))
+    print(top_tags)
+    print(f'* Top {TOP_NUMBER} tags:')
     for tag, count in top_tags:
         print('{:<20} {}'.format(tag, count))
     similar_tags = dict(get_similarities(tags))

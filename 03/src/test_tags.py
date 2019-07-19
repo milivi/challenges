@@ -4,8 +4,9 @@ import unittest
 from tags import get_tags, get_top_tags
 from tags import get_similarities, TOP_NUMBER
 
+
 TAG_COUNT = re.compile(r'">([^<]+)</a>\s\((\d+)\)<')
-TAGS = 'tags.html'
+TAGS = 'src/tags.html'
 
 
 def parse_tags_html():
@@ -33,6 +34,7 @@ class test_tags(unittest.TestCase):
         top_tags = dict(get_top_tags(self.tags)).items()
         self.assertEqual(len(top_tags), TOP_NUMBER)
         pybites_tags = dict(parse_tags_html())
+        print(pybites_tags)
         for tag in top_tags:
             self.assertIn(tag, pybites_tags.items())
 
