@@ -12,3 +12,4 @@
 **.mypy_cache/
 **.pytest_cache/
 **.ipynb_checkpoints/
+08/client_secret.json
