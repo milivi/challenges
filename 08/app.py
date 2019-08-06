@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, abort, make_response, request
-from inventory import get_items as get_items_dict, insert_item, update_item as update, delete_item as delete
+from inventory import InventoryManager
 
 
 app = Flask(__name__)
@@ -12,12 +12,12 @@ def index():
 
 @app.route('/api/v1.0/items', methods=['GET'])
 def get_items():
-    return jsonify(get_items_dict())
+    return jsonify(InventoryManager().get_items())
 
 
 @app.route('/api/v1.0/items/<string:room_id>', methods=['GET'])
 def get_rooms_items(room_id):
-    room_items = [item for item in get_items_dict() if item['Room'] == room_id]
+    room_items = [item for item in InventoryManager().get_items() if item['Room'] == room_id]
     if len(room_items) == 0:
         abort(404)
     return jsonify(room_items)
@@ -25,7 +25,7 @@ def get_rooms_items(room_id):
 
 @app.route('/api/v1.0/items/<int:row_id>', methods=['GET'])
 def get_item(row_id):
-    this_item = [item for item in get_items_dict() if item['ID'] == row_id]
+    this_item = [item for item in InventoryManager().get_items() if item['ID'] == row_id]
     if len(this_item) == 0:
         abort(404)
     return jsonify(this_item)
@@ -39,14 +39,19 @@ def create_item():
     new_item = [request.json['room'],
                 request.json['item'],
                 request.json['cost']]
-    insert_item(new_item)
-    return jsonify({'item': new_item}), 201
+    if InventoryManager().insert_item(new_item):
+        return jsonify({'item': new_item}), 201
+    else:
+        # Create did not work
+        return jsonify({'item', new_item}), 409
 
 
 @app.route('/api/v1.0/items/<int:row_id>', methods=['DELETE'])
 def delete_item(row_id):
-    response = delete(row_id)
-    return jsonify({'response': response})
+    if InventoryManager().delete_item(row_id):
+        return jsonify({'response': 'Deleted'})
+    else:
+        return jsonify({'response': 'Not Deleted'})
 
 
 @app.route('/api/v1.0/items/<int:row_id>', methods=['PUT'])
@@ -58,8 +63,11 @@ def update_item(row_id):
                     request.json['room'],
                     request.json['item'],
                     request.json['cost']]
-    update(updated_item)
-    return jsonify(updated_item)
+    if InventoryManager().update_item(updated_item):
+        return jsonify(updated_item)
+    else:
+        # Update did not work
+        return jsonify(updated_item), 409
 
 
 @app.errorhandler(400)
