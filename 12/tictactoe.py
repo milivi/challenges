@@ -1,3 +1,8 @@
+from random import randrange
+from time import sleep
+
+from Players import SimplePlayer
+
 DEFAULT = '_'  # or ' '
 VALID_POSITIONS = list(range(1, 10))  # could number board: 7-8-9, 4-5-6, 1-2-3
 WINNING_COMBINATIONS = (
@@ -12,7 +17,6 @@ PLAYER_O = 'O'
 class TicTacToe:
 
     def __init__(self):
-        """Constructor, below worked well for us ..."""
         self.board = [None] + len(VALID_POSITIONS) * [DEFAULT]  # skip index 0
 
     def __str__(self):
@@ -37,19 +41,36 @@ class TicTacToe:
             return False
 
 
+# TODO change to 'play' function and call from a games module
 if __name__ == "__main__":
     print('Welcome to Tic Tac Toe!')
     while True:
         game = TicTacToe()
-        # take turns
+        ai_player = SimplePlayer()
+
+        # Decide who starts
+        x_turn = bool(randrange(2))
+        if x_turn:
+            print("You start player X!")
+        else:
+            print("Computer player O starts!")
+            sleep(1)
+
         for turn in VALID_POSITIONS:
-            if turn % 2 == 1:
+            game.__str__()
+            if x_turn:
                 current_player = PLAYER_X
+                move = int(input(f"What's your move player {current_player}? "))
+                x_turn = False
             else:
                 current_player = PLAYER_O
-            game.__str__()
-            move = int(input(f"What's your move player {current_player}? "))
+                print()
+                print(f'Player {current_player} choosing...')
+                sleep(1.5)  # Make it seem more like playing against a person
+                move = ai_player.get_move(game.board)
+                x_turn = True
 
+            # TODO handle if an ai player returns a bad move
             while not game.make_move(move, current_player):
                 move = int(input(f"Invalid move player {current_player}, what's your move? "))
             if game.is_won():
@@ -57,6 +78,7 @@ if __name__ == "__main__":
                 game.__str__()
                 break
         else:
+            # All the valid positions had to have been played but no one won
             print("Looks like a draw...")
             game.__str__()
 
