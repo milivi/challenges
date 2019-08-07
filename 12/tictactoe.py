@@ -1,7 +1,6 @@
 from random import randrange
-from time import sleep
 
-from Players import SimplePlayer
+from Players import SimplePlayer, HumanPlayer
 
 DEFAULT = '_'  # or ' '
 VALID_POSITIONS = list(range(1, 10))  # could number board: 7-8-9, 4-5-6, 1-2-3
@@ -10,8 +9,6 @@ WINNING_COMBINATIONS = (
     (7, 4, 1), (8, 5, 2), (9, 6, 3),
     (1, 5, 9), (7, 5, 3),
 )
-PLAYER_X = 'X'
-PLAYER_O = 'O'
 
 
 class TicTacToe:
@@ -21,7 +18,6 @@ class TicTacToe:
 
     def __str__(self):
         """Print the board"""
-        print('Current Game board')
         print(self.board[1:4])
         print(self.board[4:7])
         print(self.board[7:10])
@@ -41,46 +37,40 @@ class TicTacToe:
             return False
 
 
-# TODO change to 'play' function and call from a games module
-if __name__ == "__main__":
+def play():
     print('Welcome to Tic Tac Toe!')
     while True:
         game = TicTacToe()
         ai_player = SimplePlayer()
+        human_player = HumanPlayer()
 
         # Decide who starts
         x_turn = bool(randrange(2))
         if x_turn:
-            print("You start player X!")
+            current_player = human_player
         else:
-            print("Computer player O starts!")
-            sleep(1)
+            current_player = ai_player
+        current_player.start()
 
         for turn in VALID_POSITIONS:
+            print("Current Game Board: ")
             game.__str__()
-            if x_turn:
-                current_player = PLAYER_X
-                move = int(input(f"What's your move player {current_player}? "))
-                x_turn = False
-            else:
-                current_player = PLAYER_O
-                print()
-                print(f'Player {current_player} choosing...')
-                sleep(1.5)  # Make it seem more like playing against a person
-                move = ai_player.get_move(game.board)
-                x_turn = True
+            # Figure out whose turn it is and assign them to the current_player
+            current_player = human_player if x_turn else ai_player
+            x_turn = not x_turn
 
-            # TODO handle if an ai player returns a bad move
-            while not game.make_move(move, current_player):
-                move = int(input(f"Invalid move player {current_player}, what's your move? "))
+            move = current_player.get_move(game.board)
+
+            while not game.make_move(move, current_player.name):
+                move = current_player.invalid_move(game.board)
             if game.is_won():
-                print(f"Congratulations player {current_player}, you've won!")
-                game.__str__()
+                print(f"Congratulations player {current_player.name}, you've won!")
                 break
         else:
             # All the valid positions had to have been played but no one won
             print("Looks like a draw...")
-            game.__str__()
-
-        if input('Play again? Enter y to continue or n to finish') == 'n':
+        print("Final Board:")
+        game.__str__()
+        print()
+        if input('Play again? Enter y to continue or n to finish ') == 'n':
             break
