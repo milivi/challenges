@@ -1,6 +1,7 @@
 from random import randrange
 
-from Players import SimplePlayer, HumanPlayer
+from Players.HumanPlayer import HumanPlayer
+from Players.SimplePlayer import SimplePlayer
 
 DEFAULT = '_'  # or ' '
 VALID_POSITIONS = list(range(1, 10))  # could number board: 7-8-9, 4-5-6, 1-2-3
@@ -74,3 +75,7 @@ def play():
         print()
         if input('Play again? Enter y to continue or n to finish ') == 'n':
             break
+
+
+if __name__ == '__main__':
+    play()
